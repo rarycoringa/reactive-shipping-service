@@ -47,6 +47,7 @@ public class CommandProcessor {
                 command.orderId(),
                 id,
                 command.address()))
+            .doOnSuccess(shippingEvent -> logger.info("Shipping accepted: {}", shippingEvent))
             .onErrorResume(
                 ShippingRefusedException.class, e -> Mono.just(
                     new Event(
