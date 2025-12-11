@@ -1,4 +1,4 @@
-package br.edu.ufrn.shipping.saga.orchestration.command;
+package br.edu.ufrn.shipping.saga.processor.command;
 
 public enum CommandType {
     ACCEPT_SHIPPING

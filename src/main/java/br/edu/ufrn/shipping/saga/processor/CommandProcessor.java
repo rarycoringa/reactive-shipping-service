@@ -1,4 +1,4 @@
-package br.edu.ufrn.shipping.saga.orchestration;
+package br.edu.ufrn.shipping.saga.processor;
 
 import java.util.function.Function;
 
@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import br.edu.ufrn.shipping.exception.ShippingRefusedException;
-import br.edu.ufrn.shipping.saga.orchestration.command.Command;
-import br.edu.ufrn.shipping.saga.orchestration.event.Event;
-import br.edu.ufrn.shipping.saga.orchestration.event.EventType;
+import br.edu.ufrn.shipping.saga.processor.command.Command;
+import br.edu.ufrn.shipping.saga.processor.event.Event;
+import br.edu.ufrn.shipping.saga.processor.event.EventType;
 import br.edu.ufrn.shipping.service.ShippingService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
