@@ -36,13 +36,33 @@ public class Choreographer {
     private Mono<ShippingEvent> process(PaymentEvent event) {
         return switch (event.type()) {
             case PAYMENT_CHARGED -> shippingService.accept(event.orderId(), event.address())
-                .thenReturn(new ShippingEvent(
+                .map(id -> new ShippingEvent(
                     EventType.SHIPPING_ACCEPTED,
                     event.orderId(),
+                    event.productId(),
+                    event.productQuantity(),
+                    event.productName(),
+                    event.productPrice(),
+                    event.chargeId(),
+                    event.refundId(),
+                    event.amount(),
+                    event.splitInto(),
+                    event.cardNumber(),
+                    id,
                     event.address()))
                 .onErrorReturn(new ShippingEvent(
                     EventType.SHIPPING_REFUSED,
                     event.orderId(),
+                    event.productId(),
+                    event.productQuantity(),
+                    event.productName(),
+                    event.productPrice(),
+                    event.chargeId(),
+                    event.refundId(),
+                    event.amount(),
+                    event.splitInto(),
+                    event.cardNumber(),
+                    event.shippingId(),
                     event.address()));
                 
             case PAYMENT_REFUSED, PAYMENT_REFUNDED -> Mono.empty();
