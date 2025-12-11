@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import br.edu.ufrn.shipping.exception.ShippingRefusedException;
 import br.edu.ufrn.shipping.saga.processor.command.Command;
 import br.edu.ufrn.shipping.saga.processor.event.Event;
 import br.edu.ufrn.shipping.saga.processor.event.EventType;
@@ -30,31 +29,23 @@ public class CommandProcessor {
     @Bean
     public Function<Flux<Command>, Flux<Event>> processShippingCommand() {
         return flux -> flux
-            .concatMap(this::process);
+            .doOnNext(command -> logger.info("Received shipping command: {}", command))
+            .concatMap(this::process)
+            .doOnNext(event -> logger.info("Sending shipping event: {}", event));
     }
 
     private Mono<Event> process(Command command) {
-        return switch (command.type()) {
-            case ACCEPT_SHIPPING -> acceptShipping(command);
+        return switch(command.type()) {
+            case ACCEPT_SHIPPING -> shippingService.accept(command.orderId(),command.address())
+                .map(id -> new Event(
+                    EventType.SHIPPING_ACCEPTED,
+                    command.orderId(),
+                    id))
+                .onErrorReturn(new Event(
+                    EventType.SHIPPING_REFUSED,
+                    command.orderId(),
+                    null));
         };
-    }
-
-    private Mono<Event> acceptShipping(Command command) {
-        return shippingService
-            .send(command.orderId(), command.address())
-            .map(id -> new Event(
-                EventType.SHIPPING_ACCEPTED,
-                command.orderId(),
-                id,
-                command.address()))
-            .doOnSuccess(shippingEvent -> logger.info("Shipping accepted: {}", shippingEvent))
-            .onErrorResume(
-                ShippingRefusedException.class, e -> Mono.just(
-                    new Event(
-                        EventType.SHIPPING_REFUSED,
-                        command.orderId(),
-                        null,
-                        command.address())));
     }
 
 }

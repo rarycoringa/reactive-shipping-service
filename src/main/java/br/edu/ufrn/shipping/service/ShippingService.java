@@ -12,12 +12,14 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class ShippingService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShippingService.class);
+    
     @Autowired
     private ShippingRepository shippingRepository;
         
-    private static final Logger logger = LoggerFactory.getLogger(ShippingService.class);
 
-    public Mono<String> send(
+    public Mono<String> accept(
         String orderId,
         String address
     ) {
@@ -29,8 +31,7 @@ public class ShippingService {
 
         return shippingRepository
             .save(new Shipping(orderId, address))
-            .map(Shipping::getId)
-            .doOnSuccess(id -> logger.info("Shipping successfully sent: id={}, orderId={}", id, orderId));
+            .map(Shipping::getId);
     }
     
 }
